@@ -18,7 +18,7 @@ class Question(models.Model):
 
 	def was_published_recently(self):
 		""" Returns true if the pub_date isn't 24 hours pass yet """
-		return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+		return timezone.now() >= self.pub_date >= timezone.now() - datetime.timedelta(days=1)
 
 
 class Choice(models.Model):
