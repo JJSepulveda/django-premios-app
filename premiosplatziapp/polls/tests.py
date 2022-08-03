@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.shortcuts import reverse
 
 # Models
-from .models import Question
+from .models import Question, Choice
 
 # Functions
 def create_question(question_text, days):
@@ -127,3 +127,59 @@ class QuestionMyDetailViewTests(TestCase):
 		url = reverse("polls:detail", args=(past_question.id,))
 		response = self.client.get(url)
 		self.assertContains(response, past_question.question_text)
+
+
+class ResultsViewTests(TestCase):
+	def setUp(self):
+		""" initilize data for test database """
+		question_data = {
+			'question_text': '¿Quien es el mejor profesor?',
+			'pub_date': timezone.now()
+		}
+
+		choice_data = {
+			'choice_text': 'Pedro gonzales',
+			'votes': 0,
+		}
+
+		question = Question(**question_data)
+		choice_data['question'] = question
+		choice = Choice(**choice_data)
+
+		self.test_question = question
+		self.test_choice = choice
+
+		# Ojo, el orden en que se guardan importa
+		# primero es questions porque choice tiene
+		# la foreign key
+		question.save()
+		choice.save()
+
+
+	def test_show_question_text(self):
+		"""
+		The question text should be displayed in the response object.
+		"""
+		url = reverse("polls:results", args=(self.test_question.id,))
+		response = self.client.get(url)
+		self.assertContains(response, self.test_question.question_text)
+
+	def test_show_choices(self):
+		"""
+		The choices displayed should be equal to all choices
+		that was created for a particular question.
+		"""
+		url = reverse("polls:results", args=(self.test_question.id,))
+		response = self.client.get(url)
+		self.assertQuerysetEqual(response.context["question"].choice_set.all(), [self.test_choice])
+
+	def test_show_votes(self):
+		"""
+		The number of votes should be displayed for each choice.
+		"""
+		url = reverse("polls:results", args=(self.test_question.id,))
+		response = self.client.get(url)
+		# Let's make a string to be completly sure that it's the correct vote displayed
+		votes_string = f'{self.test_choice.choice_text} -- {self.test_choice.votes}'
+
+		self.assertContains(response, votes_string)
