@@ -4,28 +4,14 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Premios app</title>
+	<title>{% block title %}Premios app: {% endblock title %}</title>
 	<link rel="stylesheet" href="{% static 'polls/reset.css' %}">
 	<link rel="stylesheet" href="{% static 'polls/styles.css' %}">
+	<link rel="stylesheet" href="{% static 'polls/detail.css' %}">
 </head>
 <body>
-	<header>
-		<h1>Premios app</h1>
-	</header>
-	<main>
-	{% if latest_question_list %}
-		<ul>
-		{% for question in latest_question_list  %}
-			<li>
-				<a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a>
-			</li>
-		{% endfor %}
-		</ul>
-	{% else %}
-		<p>No polls are availabe.</p>
-	{% endif %}	
-	</main>
-
+	{% block content %}
+	{% endblock content %}	
 	<footer>
 		<a>Platzi</a>
 		<a>¿Quieres se profesor?</a>
